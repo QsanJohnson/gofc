@@ -35,7 +35,7 @@ func TestGetTargetPorts(t *testing.T) {
 	}
 }
 
-func TestGetDevices(t *testing.T) {
+func TestGetDevicesByTnameLun(t *testing.T) {
 	devices, _ := fc.GetDevices("0x2000001378d485e0", 0)
 	for no, dev := range devices {
 		fmt.Printf("Device(%s): %+v\n", no, dev)

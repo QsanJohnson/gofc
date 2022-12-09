@@ -30,26 +30,14 @@ type Device struct {
 }
 
 func (fc *FCUtil) GetTargetPorts() []TargetPort {
-	var ports []TargetPort
-	fcRemotePath := "/sys/class/fc_remote_ports/"
-	if dirs, err := ioutil.ReadDir(fcRemotePath); err == nil {
-		for _, dir := range dirs {
-			portName, err1 := os.ReadFile(fcRemotePath + dir.Name() + "/port_name")
-			nodeName, err2 := os.ReadFile(fcRemotePath + dir.Name() + "/node_name")
-			if err1 == nil && err2 == nil {
-				ports = append(ports, TargetPort{strings.Trim(string(portName), "\n"), strings.Trim(string(nodeName), "\n")})
-			}
-		}
-	}
-
-	return ports
+	return getTargetPorts()
 }
 
 func (fc *FCUtil) GetDevices(tnodeName string, lun uint64) (map[string]*Device, error) {
 	if !strings.HasPrefix(tnodeName, "0x") {
 		tnodeName = "0x" + tnodeName
 	}
-	portNames := fc.GetTPortNamesFromTNodeName(tnodeName)
+	portNames := getPortnamesByNodename(tnodeName, nil)
 	return getDevicesByPortNamesLun(portNames, lun)
 }
 
@@ -84,7 +72,7 @@ func (fc *FCUtil) RescanHost() {
 
 func (fc *FCUtil) RemoveDisk(devPath string) error {
 	if strings.HasPrefix(devPath, "/dev/") {
-		devices, _ := fc.GetDevicesByDevPath(devPath)
+		devices, _ := getDevicesByDevPath(devPath)
 		for devName, dev := range devices {
 			glog.V(4).Infof("[RemoveDisk] name(%s) dev(%+v)", devName, dev)
 
@@ -104,17 +92,4 @@ func (fc *FCUtil) RemoveDisk(devPath string) error {
 	}
 
 	return nil
-}
-
-func (fc *FCUtil) GetTPortNamesFromTNodeName(nodeName string) []string {
-	var portNames []string
-
-	ports := fc.GetTargetPorts()
-	for _, port := range ports {
-		if port.NodeName == nodeName {
-			portNames = append(portNames, port.PortName)
-		}
-	}
-
-	return portNames
 }
