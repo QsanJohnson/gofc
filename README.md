@@ -5,6 +5,11 @@ It provides the following functions,
 - Get disk
 - Remove disk
 
+## Install
+```
+go get github.com/QsanJohnson/gofc
+```
+
 ## Testing
 Run the following integration test to check if the FC HBA card is exist,
 ```

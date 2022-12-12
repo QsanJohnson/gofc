@@ -133,7 +133,7 @@ func getDevicesByPortNamesLun(portNames []string, lun uint64) (map[string]*Devic
 						devMap[tokens[1]] = dev
 					}
 				} else {
-					fmt.Printf("Failed to get disk path : %v \n", err)
+					glog.Errorf("Failed to get device(%s) info, err: %v \n", devicePath, err)
 				}
 			}
 		}
@@ -255,7 +255,7 @@ func getDevicesByDevPath(devPath string) (map[string]*Device, error) {
 					}
 				}
 			} else {
-				fmt.Printf("Failed to get disk path : %v \n", err)
+				glog.Errorf("Failed to get device(%s) info, err: %v \n", devicePath, err)
 			}
 		}
 	}

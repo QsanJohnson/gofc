@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
 )
@@ -38,7 +39,15 @@ func (fc *FCUtil) GetDevices(tnodeName string, lun uint64) (map[string]*Device, 
 		tnodeName = "0x" + tnodeName
 	}
 	portNames := getPortnamesByNodename(tnodeName, nil)
-	return getDevicesByPortNamesLun(portNames, lun)
+	devMap, err := getDevicesByPortNamesLun(portNames, lun)
+	if len(devMap) == 0 {
+		glog.Warningf("[GetDevices] Device not found(tnodeName: %s, lun: %d). Rescan host then try again!", tnodeName, lun)
+		time.Sleep(time.Millisecond * 1000)
+		fc.RescanHost()
+		devMap, err = getDevicesByPortNamesLun(portNames, lun)
+	}
+
+	return devMap, err
 }
 
 func (fc *FCUtil) GetDevicesByDevPath(devPath string) (map[string]*Device, error) {
